@@ -10,25 +10,38 @@ const VARIABLES = {
   query: 'フロントエンドエンジニア',
 }
 
-const SearchRepository = ({ variables }) => {
-  const { after, before, first, last, query } = variables
-  const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
-    variables: { after, before, first, last, query },
-  })
-
-  console.log(data)
-  if (loading) return <p>Loading...</p>
-  if (error) return <p>Error :( {error.message}</p>
-
-  return <div></div>
-}
-
 const SearchForm = ({ value, onChange }) => {
   return (
     <form onSubmit={(ev) => ev.preventDefault()}>
       <input value={value} onChange={(ev) => onChange(ev.currentTarget.value)} />
     </form>
   )
+}
+
+const Content = ({ variables }) => {
+  const { after, before, first, last, query } = variables
+  const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
+    variables: { after, before, first, last, query },
+  })
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error :( {error.message}</p>
+
+  console.log(data)
+
+  return (
+    <>
+      <Title data={data} />
+    </>
+  )
+}
+
+const Title = ({ data }) => {
+  const { repositoryCount } = data.search
+  const repositoryUnit = repositoryCount === 1 ? 'Repository' : 'Repositories'
+  const title = `GitHub Repositories Search Results - ${repositoryCount} ${repositoryUnit}`
+
+  return <h2>{title}</h2>
 }
 
 function useVariables(defaultVariables) {
@@ -49,9 +62,8 @@ function App() {
 
   return (
     <div>
-      Hello GraphQL
       <SearchForm value={variables.query} onChange={updateQuery} />
-      <SearchRepository variables={variables} />
+      <Content variables={variables} />
     </div>
   )
 }
