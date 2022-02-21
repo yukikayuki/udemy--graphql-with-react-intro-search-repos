@@ -10,9 +10,7 @@ const VARIABLES = {
   query: 'フロントエンドエンジニア',
 }
 
-const SearchRepository = () => {
-  const [variables, setVariables] = useState(VARIABLES)
-
+const SearchRepository = ({ variables }) => {
   const { after, before, first, last, query } = variables
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
     variables: { after, before, first, last, query },
@@ -25,11 +23,35 @@ const SearchRepository = () => {
   return <div></div>
 }
 
+const SearchForm = ({ value, onChange }) => {
+  return (
+    <form onSubmit={(ev) => ev.preventDefault()}>
+      <input value={value} onChange={(ev) => onChange(ev.currentTarget.value)} />
+    </form>
+  )
+}
+
+function useVariables(defaultVariables) {
+  const [variables, setVariables] = useState(VARIABLES)
+
+  function updateQuery(query) {
+    setVariables({ ...variables, query })
+  }
+
+  return {
+    variables,
+    updateQuery,
+  }
+}
+
 function App() {
+  const { variables, updateQuery } = useVariables(VARIABLES)
+
   return (
     <div>
       Hello GraphQL
-      <SearchRepository />
+      <SearchForm value={variables.query} onChange={updateQuery} />
+      <SearchRepository variables={variables} />
     </div>
   )
 }
