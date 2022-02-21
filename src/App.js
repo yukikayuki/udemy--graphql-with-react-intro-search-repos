@@ -10,6 +10,14 @@ const VARIABLES = {
   query: 'フロントエンドエンジニア',
 }
 
+const SearchForm = ({ value, onChange }) => {
+  return (
+    <form onSubmit={(ev) => ev.preventDefault()}>
+      <input value={value} onChange={(ev) => onChange(ev.currentTarget.value)} />
+    </form>
+  )
+}
+
 const Content = ({ variables }) => {
   const { after, before, first, last, query } = variables
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
@@ -25,14 +33,6 @@ const Content = ({ variables }) => {
     <>
       <Title data={data} />
     </>
-  )
-}
-
-const SearchForm = ({ value, onChange }) => {
-  return (
-    <form onSubmit={(ev) => ev.preventDefault()}>
-      <input value={value} onChange={(ev) => onChange(ev.currentTarget.value)} />
-    </form>
   )
 }
 
