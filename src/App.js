@@ -59,6 +59,8 @@ const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) 
 const RepositoryRow = ({ edge }) => {
   const { node } = edge
 
+  const startCount = node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`
+
   return (
     <li>
       <a href={node.url} target={'_blank'} rel={'noreferrer'}>
@@ -66,7 +68,7 @@ const RepositoryRow = ({ edge }) => {
         {node.name}
       </a>
       <button type={'button'}>
-        {node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`}
+        {startCount} | {node.viewerHasStarred ? 'starred' : '-'}
       </button>
     </li>
   )
