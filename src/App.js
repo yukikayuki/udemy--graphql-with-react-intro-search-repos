@@ -32,7 +32,24 @@ const Content = ({ variables }) => {
   return (
     <>
       <Title data={data} />
+      <ul>
+        {data.search.edges.map((edge) => {
+          return <RepositoryRow edge={edge} key={edge.node.id} />
+        })}
+      </ul>
     </>
+  )
+}
+
+const RepositoryRow = ({ edge }) => {
+  const { node } = edge
+
+  return (
+    <li>
+      <a href={node.url} target={'_blank'} rel={'noopener'}>
+        {node.name}
+      </a>
+    </li>
   )
 }
 
