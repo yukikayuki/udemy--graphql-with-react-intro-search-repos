@@ -19,7 +19,7 @@ const SearchForm = ({ value, onChange }) => {
   )
 }
 
-const Content = ({ variables, updatePaginationToNext }) => {
+const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) => {
   const { after, before, first, last, query } = variables
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
     variables: { after, before, first, last, query },
@@ -41,6 +41,12 @@ const Content = ({ variables, updatePaginationToNext }) => {
         })}
       </ul>
 
+      {pageInfo.hasPreviousPage && (
+        <button type={'button'} onClick={updatePaginationToPrev.bind(this, pageInfo)}>
+          Prev
+        </button>
+      )}
+
       {pageInfo.hasNextPage && (
         <button type={'button'} onClick={updatePaginationToNext.bind(this, pageInfo)}>
           Next
@@ -55,7 +61,7 @@ const RepositoryRow = ({ edge }) => {
 
   return (
     <li>
-      <a href={node.url} target={'_blank'} rel={'noopener'}>
+      <a href={node.url} target={'_blank'} rel={'noreferrer'}>
         {node.name}
       </a>
     </li>
@@ -82,8 +88,18 @@ function useVariables(defaultVariables) {
       ...variables,
       first: PRE_PAGE,
       after: pageInfo.endCursor,
-      lest: null,
+      last: null,
       before: null,
+    })
+  }
+
+  function updatePaginationToPrev(pageInfo) {
+    setVariables({
+      ...variables,
+      first: null,
+      after: null,
+      last: PRE_PAGE,
+      before: pageInfo.startCursor,
     })
   }
 
@@ -91,16 +107,22 @@ function useVariables(defaultVariables) {
     variables,
     updateQuery,
     updatePaginationToNext,
+    updatePaginationToPrev,
   }
 }
 
 function App() {
-  const { variables, updateQuery, updatePaginationToNext } = useVariables(VARIABLES)
+  const { variables, updateQuery, updatePaginationToNext, updatePaginationToPrev } =
+    useVariables(VARIABLES)
 
   return (
     <div>
       <SearchForm value={variables.query} onChange={updateQuery} />
-      <Content variables={variables} updatePaginationToNext={updatePaginationToNext} />
+      <Content
+        variables={variables}
+        updatePaginationToNext={updatePaginationToNext}
+        updatePaginationToPrev={updatePaginationToPrev}
+      />
     </div>
   )
 }
