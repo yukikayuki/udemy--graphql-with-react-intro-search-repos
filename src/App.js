@@ -61,7 +61,7 @@ const RepositoryRow = ({ edge }) => {
 
   return (
     <li>
-      <a href={node.url} target={'_blank'} rel={'noopener'}>
+      <a href={node.url} target={'_blank'} rel={'noreferrer'}>
         {node.name}
       </a>
     </li>
