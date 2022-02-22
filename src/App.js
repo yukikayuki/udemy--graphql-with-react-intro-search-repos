@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client'
-import { ADD_START, SEARCH_REPOSITORIES } from './graphql'
+import { ADD_START, REMOVE_STAR, SEARCH_REPOSITORIES } from './graphql'
 import { useState } from 'react'
 
 const PRE_PAGE = 5
@@ -61,13 +61,14 @@ const RepositoryRow = ({ edge }) => {
 
   const startCount = node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`
 
-  const [addStar] = useMutation(ADD_START, {
-    variables: {
-      input: {
-        starrableId: node.id,
-      },
+  const variablesForStar = {
+    input: {
+      starrableId: node.id,
     },
-  })
+  }
+
+  const [addStar] = useMutation(ADD_START, { variables: variablesForStar })
+  const [removeStar] = useMutation(REMOVE_STAR, { variables: variablesForStar })
 
   return (
     <li>
@@ -75,7 +76,7 @@ const RepositoryRow = ({ edge }) => {
         &nbsp;
         {node.name}
       </a>
-      <button type={'button'} onClick={addStar}>
+      <button type={'button'} onClick={node.viewerHasStarred ? removeStar : addStar}>
         {startCount} | {node.viewerHasStarred ? 'starred' : '-'}
       </button>
     </li>
