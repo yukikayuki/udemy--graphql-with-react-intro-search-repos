@@ -28,8 +28,6 @@ const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) 
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error :( {error.message}</p>
 
-  console.log(data.search)
-
   const { edges, pageInfo } = data.search
 
   return (
@@ -73,9 +71,44 @@ const RepositoryRow = ({ edge, variables }) => {
         starrableId: node.id,
       },
     },
-    refetchQueries: (nutationResult) => {
-      console.log(nutationResult)
-      return [{ query: SEARCH_REPOSITORIES, variables }]
+    // サーバからrefetchする場合
+    // refetchQueries: (nutationResult) => {
+    //   console.log(nutationResult)
+    //   return [{ query: SEARCH_REPOSITORIES, variables }]
+    // },
+    // cacheを直接いじる場合
+    update: (cache, { data: { addStar, removeStar } }) => {
+      const currentData = cache.readQuery({
+        query: SEARCH_REPOSITORIES,
+        variables,
+      })
+
+      const { starrable } = addStar ?? removeStar // starrableの型が同じなので可能な技
+
+      const newEdges = currentData.search.edges.map((edge) => {
+        if (edge.node.id === node.id) {
+          const diff = starrable.viewerHasStarred ? 1 : -1
+          return {
+            ...edge,
+            node: {
+              ...edge.node,
+              stargazerCount: edge.node.stargazerCount + diff,
+            },
+          }
+        } else {
+          return edge
+        }
+      })
+
+      const newData = {
+        ...currentData,
+        search: {
+          ...currentData.search,
+          edges: newEdges,
+        },
+      }
+
+      cache.writeQuery({ query: SEARCH_REPOSITORIES, data: newData })
     },
   }
 
