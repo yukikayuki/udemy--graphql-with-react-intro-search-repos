@@ -62,8 +62,12 @@ const RepositoryRow = ({ edge }) => {
   return (
     <li>
       <a href={node.url} target={'_blank'} rel={'noreferrer'}>
+        &nbsp;
         {node.name}
       </a>
+      <button type={'button'}>
+        {node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`}
+      </button>
     </li>
   )
 }
