@@ -88,7 +88,7 @@ function useVariables(defaultVariables) {
       ...variables,
       first: PRE_PAGE,
       after: pageInfo.endCursor,
-      lest: null,
+      last: null,
       before: null,
     })
   }
