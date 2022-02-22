@@ -37,7 +37,13 @@ const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) 
       <Title data={data} />
       <ul>
         {edges.map((edge) => {
-          return <RepositoryRow edge={edge} key={edge.node.id} />
+          return (
+            <RepositoryRow
+              key={edge.node.id}
+              edge={edge}
+              variables={{ after, before, first, last, query }}
+            />
+          )
         })}
       </ul>
 
@@ -56,19 +62,25 @@ const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) 
   )
 }
 
-const RepositoryRow = ({ edge }) => {
+const RepositoryRow = ({ edge, variables }) => {
   const { node } = edge
 
   const startCount = node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`
 
-  const variablesForStar = {
-    input: {
-      starrableId: node.id,
+  const mutationOptionsOfStarControl = {
+    variables: {
+      input: {
+        starrableId: node.id,
+      },
+    },
+    refetchQueries: (nutationResult) => {
+      console.log(nutationResult)
+      return [{ query: SEARCH_REPOSITORIES, variables }]
     },
   }
 
-  const [addStar] = useMutation(ADD_START, { variables: variablesForStar })
-  const [removeStar] = useMutation(REMOVE_STAR, { variables: variablesForStar })
+  const [addStar] = useMutation(ADD_START, mutationOptionsOfStarControl)
+  const [removeStar] = useMutation(REMOVE_STAR, mutationOptionsOfStarControl)
 
   return (
     <li>
