@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@apollo/client'
 import { ADD_START, REMOVE_STAR, SEARCH_REPOSITORIES } from './graphql'
-import { useState } from 'react'
+import { createRef, forwardRef, useState } from 'react'
 
 const PRE_PAGE = 5
 const VARIABLES = {
@@ -8,16 +8,16 @@ const VARIABLES = {
   after: null,
   last: null,
   before: null,
-  query: 'フロントエンドエンジニア',
+  query: '',
 }
 
-const SearchForm = ({ value, onChange }) => {
+const SearchForm = forwardRef(({ onSubmit }, ref) => {
   return (
-    <form onSubmit={(ev) => ev.preventDefault()}>
-      <input value={value} onChange={(ev) => onChange(ev.currentTarget.value)} />
+    <form onSubmit={onSubmit} ref={ref}>
+      <input name={'query'} />
     </form>
   )
-}
+})
 
 const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) => {
   const { after, before, first, last, query } = variables
@@ -118,9 +118,9 @@ const RepositoryRow = ({ edge, variables }) => {
   return (
     <li>
       <a href={node.url} target={'_blank'} rel={'noreferrer'}>
-        &nbsp;
         {node.name}
       </a>
+      &nbsp;
       <button type={'button'} onClick={node.viewerHasStarred ? removeStar : addStar}>
         {startCount} | {node.viewerHasStarred ? 'starred' : '-'}
       </button>
@@ -175,9 +175,15 @@ function App() {
   const { variables, updateQuery, updatePaginationToNext, updatePaginationToPrev } =
     useVariables(VARIABLES)
 
+  const ref = createRef()
+  const handleSubmit = (ev) => {
+    ev.preventDefault()
+    updateQuery(ref.current.query.value)
+  }
+
   return (
     <div>
-      <SearchForm value={variables.query} onChange={updateQuery} />
+      <SearchForm onSubmit={handleSubmit} ref={ref} />
       <Content
         variables={variables}
         updatePaginationToNext={updatePaginationToNext}
