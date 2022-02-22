@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client'
-import { SEARCH_REPOSITORIES } from './graphql'
+import { useQuery, useMutation } from '@apollo/client'
+import { ADD_START, SEARCH_REPOSITORIES } from './graphql'
 import { useState } from 'react'
 
 const PRE_PAGE = 5
@@ -61,13 +61,21 @@ const RepositoryRow = ({ edge }) => {
 
   const startCount = node.stargazerCount === 1 ? ' 1 star' : `${node.stargazerCount} stars`
 
+  const [addStar] = useMutation(ADD_START, {
+    variables: {
+      input: {
+        starrableId: node.id,
+      },
+    },
+  })
+
   return (
     <li>
       <a href={node.url} target={'_blank'} rel={'noreferrer'}>
         &nbsp;
         {node.name}
       </a>
-      <button type={'button'}>
+      <button type={'button'} onClick={addStar}>
         {startCount} | {node.viewerHasStarred ? 'starred' : '-'}
       </button>
     </li>

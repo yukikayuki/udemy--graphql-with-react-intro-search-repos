@@ -1,5 +1,16 @@
 import { gql } from '@apollo/client'
 
+export const ADD_START = gql`
+  mutation addStar($input: AddStarInput!) {
+    addStar(input: $input) {
+      starrable {
+        id
+        viewerHasStarred
+      }
+    }
+  }
+`
+
 export const SEARCH_REPOSITORIES = gql`
   query searchRepositories(
     $first: Int
