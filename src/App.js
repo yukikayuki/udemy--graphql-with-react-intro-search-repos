@@ -19,7 +19,7 @@ const SearchForm = ({ value, onChange }) => {
   )
 }
 
-const Content = ({ variables, updatePaginationToNext }) => {
+const Content = ({ variables, updatePaginationToNext, updatePaginationToPrev }) => {
   const { after, before, first, last, query } = variables
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
     variables: { after, before, first, last, query },
@@ -40,6 +40,12 @@ const Content = ({ variables, updatePaginationToNext }) => {
           return <RepositoryRow edge={edge} key={edge.node.id} />
         })}
       </ul>
+
+      {pageInfo.hasPreviousPage && (
+        <button type={'button'} onClick={updatePaginationToPrev.bind(this, pageInfo)}>
+          Prev
+        </button>
+      )}
 
       {pageInfo.hasNextPage && (
         <button type={'button'} onClick={updatePaginationToNext.bind(this, pageInfo)}>
@@ -87,20 +93,36 @@ function useVariables(defaultVariables) {
     })
   }
 
+  function updatePaginationToPrev(pageInfo) {
+    setVariables({
+      ...variables,
+      first: null,
+      after: null,
+      last: PRE_PAGE,
+      before: pageInfo.startCursor,
+    })
+  }
+
   return {
     variables,
     updateQuery,
     updatePaginationToNext,
+    updatePaginationToPrev,
   }
 }
 
 function App() {
-  const { variables, updateQuery, updatePaginationToNext } = useVariables(VARIABLES)
+  const { variables, updateQuery, updatePaginationToNext, updatePaginationToPrev } =
+    useVariables(VARIABLES)
 
   return (
     <div>
       <SearchForm value={variables.query} onChange={updateQuery} />
-      <Content variables={variables} updatePaginationToNext={updatePaginationToNext} />
+      <Content
+        variables={variables}
+        updatePaginationToNext={updatePaginationToNext}
+        updatePaginationToPrev={updatePaginationToPrev}
+      />
     </div>
   )
 }
