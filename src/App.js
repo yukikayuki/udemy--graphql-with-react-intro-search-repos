@@ -2,8 +2,9 @@ import { useQuery } from '@apollo/client'
 import { SEARCH_REPOSITORIES } from './graphql'
 import { useState } from 'react'
 
+const PRE_PAGE = 5
 const VARIABLES = {
-  first: 5,
+  first: PRE_PAGE,
   after: null,
   last: null,
   before: null,
@@ -18,7 +19,7 @@ const SearchForm = ({ value, onChange }) => {
   )
 }
 
-const Content = ({ variables }) => {
+const Content = ({ variables, updatePaginationToNext }) => {
   const { after, before, first, last, query } = variables
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, {
     variables: { after, before, first, last, query },
@@ -27,16 +28,24 @@ const Content = ({ variables }) => {
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error :( {error.message}</p>
 
-  console.log(data)
+  console.log(data.search)
+
+  const { edges, pageInfo } = data.search
 
   return (
     <>
       <Title data={data} />
       <ul>
-        {data.search.edges.map((edge) => {
+        {edges.map((edge) => {
           return <RepositoryRow edge={edge} key={edge.node.id} />
         })}
       </ul>
+
+      {pageInfo.hasNextPage && (
+        <button type={'button'} onClick={updatePaginationToNext.bind(this, pageInfo)}>
+          Next
+        </button>
+      )}
     </>
   )
 }
@@ -68,19 +77,30 @@ function useVariables(defaultVariables) {
     setVariables({ ...variables, query })
   }
 
+  function updatePaginationToNext(pageInfo) {
+    setVariables({
+      ...variables,
+      first: PRE_PAGE,
+      after: pageInfo.endCursor,
+      lest: null,
+      before: null,
+    })
+  }
+
   return {
     variables,
     updateQuery,
+    updatePaginationToNext,
   }
 }
 
 function App() {
-  const { variables, updateQuery } = useVariables(VARIABLES)
+  const { variables, updateQuery, updatePaginationToNext } = useVariables(VARIABLES)
 
   return (
     <div>
       <SearchForm value={variables.query} onChange={updateQuery} />
-      <Content variables={variables} />
+      <Content variables={variables} updatePaginationToNext={updatePaginationToNext} />
     </div>
   )
 }
